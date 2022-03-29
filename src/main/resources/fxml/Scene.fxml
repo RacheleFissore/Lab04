@@ -76,14 +76,15 @@
             </HBox>
             <HBox>
                <children>
-                  <Button mnemonicParsing="false" text="Cerca corsi">
+                  <Button fx:id="btnCerca" mnemonicParsing="false" onAction="#handleCercaCorsi" text="Cerca corsi">
                      <HBox.margin>
                         <Insets left="10.0" right="50.0" />
                      </HBox.margin>
                   </Button>
+                  <Button fx:id="btnCercaStudIscritto" mnemonicParsing="false" onAction="#handleCercaStudiscritto" text="Cerca studente iscritto al corso" />
                   <Button fx:id="btnIscriviti" mnemonicParsing="false" onAction="#handleIscriviti" text="Iscriviti">
                      <HBox.margin>
-                        <Insets left="10.0" />
+                        <Insets left="50.0" />
                      </HBox.margin>
                   </Button>
                </children>

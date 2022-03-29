@@ -38,6 +38,8 @@ public class CorsoDAO {
 
 				// Crea un nuovo JAVA Bean Corso
 				// Aggiungi il nuovo oggetto Corso alla lista corsi
+				Corso c = new Corso(codins, numeroCrediti, nome, periodoDidattico); 
+				corsi.add(c);	
 			}
 
 			conn.close();
@@ -62,8 +64,33 @@ public class CorsoDAO {
 	/*
 	 * Ottengo tutti gli studenti iscritti al Corso
 	 */
-	public void getStudentiIscrittiAlCorso(Corso corso) {
-		// TODO
+	public List<Studente> getStudentiIscrittiAlCorso(String corso) {
+		List<Studente> listaStudente = new LinkedList<Studente>();
+		
+		String sql = "SELECT s.* "
+				+ "FROM studente s, iscrizione i "
+				+ "WHERE s.matricola = i.matricola "
+				+ "AND i.codins = ?";
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, corso); // Come parametro gli passo il nome del corso che è stato passato in input dall'utente
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next()) {
+				listaStudente.add(new Studente(rs.getInt("matricola"), rs.getString("cognome"), rs.getString("nome"), rs.getString("CDS")));
+			}
+			
+			st.close();
+			rs.close();
+			conn.close();
+			return listaStudente;
+		} catch(SQLException e) {
+			System.err.println("Errore nel DAO");
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/*
