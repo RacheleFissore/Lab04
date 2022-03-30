@@ -48,7 +48,7 @@ public class Studente {
 
 	@Override
 	public String toString() {
-		return "Studente [matricola=" + matricola + ", cognome=" + cognome + ", nome=" + nome + ", cds=" + cds + "]";
+		return matricola + "\t\t" + cognome + "\t\t" + nome + "\t\t" + cds;
 	}
 
 	@Override

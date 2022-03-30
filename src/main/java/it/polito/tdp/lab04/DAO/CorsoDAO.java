@@ -28,7 +28,6 @@ public class CorsoDAO {
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
-
 				String codins = rs.getString("codins");
 				int numeroCrediti = rs.getInt("crediti");
 				String nome = rs.getString("nome");
@@ -36,8 +35,6 @@ public class CorsoDAO {
 
 				System.out.println(codins + " " + numeroCrediti + " " + nome + " " + periodoDidattico);
 
-				// Crea un nuovo JAVA Bean Corso
-				// Aggiungi il nuovo oggetto Corso alla lista corsi
 				Corso c = new Corso(codins, numeroCrediti, nome, periodoDidattico); 
 				corsi.add(c);	
 			}
@@ -96,10 +93,27 @@ public class CorsoDAO {
 	/*
 	 * Data una matricola ed il codice insegnamento, iscrivi lo studente al corso.
 	 */
-	public boolean inscriviStudenteACorso(Studente studente, Corso corso) {
-		// TODO
+	public boolean iscriviStudenteACorso(int matricola, String codins) {
+		String sql = "INSERT INTO iscrizione (matricola, codins) "
+				+ "VALUES (?, ?)";
 		// ritorna true se l'iscrizione e' avvenuta con successo
-		return false;
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1,  matricola);
+			st.setString(2, codins); 
+			ResultSet rs = st.executeQuery();
+			
+			st.close();
+			rs.close();
+			conn.close();
+			return true;
+		} catch(SQLException e) {
+			System.err.println("Errore nel DAO");
+			e.printStackTrace();
+			return false;
+		}
+		
 	}
 
 }

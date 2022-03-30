@@ -38,4 +38,8 @@ public class Model {
 	public Studente getStudenteIscrittoCorso(String codins, int matricola) {
 		return this.studenteDao.getStudenteIscrittoCorso(codins, matricola);
 	}
+	
+	public boolean iscriviStudenteACorso(int matricola, String codins) {
+		return this.corsoDao.iscriviStudenteACorso(matricola, codins);
+	}
 }

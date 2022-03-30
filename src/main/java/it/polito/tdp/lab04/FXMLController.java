@@ -61,25 +61,42 @@ public class FXMLController {
     @FXML
     private TextField txtCognome;
     
+    /* PUNTO 1: reset di tutti i campi */
+    @FXML
+    void handleReset(ActionEvent event) {
+    	txtMatr.setText("");
+    	txtRisultato.setText("");
+    	txtNome.setText("");
+    	txtCognome.setText("");
+    }
+    
+    /* PUNTO 2: data la matricola di uno studente far comparire nome e cognome */    
+    @FXML
+    void handleOK(ActionEvent event) {
+    	Map<Integer, Studente> mappaStudenti = this.model.getStudenti();
+    	int matricola = this.controllaInserimentoMatricola();
+    	
+    	if(mappaStudenti.containsKey(matricola)) {
+    		txtNome.setText(mappaStudenti.get(matricola).getNome());
+    		txtCognome.setText(mappaStudenti.get(matricola).getCognome());
+    	}
+    	else {
+    		txtRisultato.setText("Non è presente uno studente con questa matricola");
+    	}
+    	
+    }
+    
+    /* PUNTO 3: ricerca gli studenti iscritti ad un corso */
     @FXML
     void handleCercaIscritti(ActionEvent event) {
     	txtRisultato.setText("");
-    	String corsoScelto = cmbCorsi.getValue();
+    	String corsoScelto = controllaComboCorso();
+    	Corso c = null;
     	
-    	if(corsoScelto == null) {
-    		txtRisultato.setText("Selezionare un corso");
-    		return;
-    	}
-    	
-    	if(corsoScelto.compareTo(" ") == 0) {
-    		txtRisultato.setText("Non ci sono iscritti presenti al corso perchè non è stato selezionato nessun corso");
-    		return;
-    	}
-    	
-    	List<Corso> listaCorsi = this.model.getCorsi();
-    	Corso c = getCodiceCorso(corsoScelto);
-    	
-    	if(c == null) {
+    	// Controlla che il corso sia stato inserito
+    	try {
+    		c = getCodiceCorso(corsoScelto);
+    	} catch (NullPointerException e) {
     		txtRisultato.setText("Non è stato trovato nessun corso");
     		return;
     	}
@@ -91,19 +108,12 @@ public class FXMLController {
     	
     }
     
+    /* PUNTO 4: ricerca dei corsi a cui è iscritto uno studente */
     @FXML
     void handleCercaCorsi(ActionEvent event) {
-    	int matricola;
-    	txtRisultato.setText("");
-    	
-    	try {
-    		matricola = Integer.parseInt(txtMatr.getText());
-    	} catch(NumberFormatException e) {
-    		txtRisultato.setText("Inserisci un periodo numerico");
-    		return; // L'input è sbagliato perchè non contiene un numero
-    	}
-    	
+    	int matricola = this.controllaInserimentoMatricola();    	
     	Studente s = this.model.getStudenteByMatricola(matricola);
+    	
     	if(s == null) {
     		txtRisultato.setText("Non è presente uno studente con questo numero di matricola");
     		return;
@@ -115,28 +125,15 @@ public class FXMLController {
     		}
     	}
     	
-    }
-    
+    }    
 
+    /* PUNTO 5: ricerca se uno studente è iscritto ad un corso */
     @FXML
     void handleCercaStudiscritto(ActionEvent event) {
     	/* Controlli di validità */
-    	int matricola;
     	txtRisultato.setText("");
-    	
-    	try {
-    		matricola = Integer.parseInt(txtMatr.getText());
-    	} catch(NumberFormatException e) {
-    		txtRisultato.setText("Inserisci un periodo numerico");
-    		return; 
-    	}
-    	
-    	String corsoScelto = cmbCorsi.getValue();
-    	
-    	if(corsoScelto == null) {
-    		txtRisultato.setText("Selezionare un corso");
-    		return;
-    	}
+    	int matricola = controllaInserimentoMatricola();
+    	String corsoScelto = controllaComboCorso();
     	
     	if(corsoScelto.compareTo(" ") == 0) {
     		txtRisultato.setText("Non ci sono iscritti presenti al corso perchè non è stato selezionato nessun corso");
@@ -162,10 +159,47 @@ public class FXMLController {
     			return;
     		}
     		else {
-    			this.txtRisultato.setText(stud.toString());
+    			txtNome.setText(s.getNome());
+    			txtCognome.setText(s.getCognome());
+    			this.txtRisultato.setText("Studente già iscritto a questo corso!");
     		}
     	}
     	
+    }
+    
+    /* PUNTO 6: iscrivere lo studente ad un corso */
+    @FXML
+    void handleIscriviti(ActionEvent event) {
+    	int matricola = controllaInserimentoMatricola();
+    	String corsoScelto = controllaComboCorso();
+    	
+    	// Controllo che la matricola che inserisco sia di uno studente iscritto al corso
+    	Studente s = this.model.getStudenteByMatricola(matricola);
+    	if(s == null) {
+    		txtRisultato.setText("Non è presente uno studente con questo numero di matricola");
+    		return;
+    	}
+    	
+    	// Controllo che i campi siano stati inseriti correttamente
+    	if(matricola != -1 && corsoScelto != null && corsoScelto != " ") {
+    		Corso c = getCodiceCorso(corsoScelto);
+        	
+        	if(c == null) {
+        		txtRisultato.setText("Non è stato trovato nessun corso");
+        		return;
+        	}
+        	
+        	boolean risultato = this.model.iscriviStudenteACorso(matricola, c.getCodins()); // Restituisce true se l'inserimento è andato a buon fine
+        	if(risultato == true) {
+        		txtRisultato.setText("Studente iscritto correttamente al corso");
+        	}
+        	else {
+        		txtRisultato.setText("Errore nell'inserimento dello studente al corso");
+        	}
+    	}
+    	else {
+    		txtRisultato.setText("Inserire tutti i dati!");
+    	}
     }
     
     /* Prendo il codice del corso associato alla combobox */
@@ -182,37 +216,27 @@ public class FXMLController {
     	return null;
     }
 
-    @FXML
-    void handleIscriviti(ActionEvent event) {
-
-    }
-
-    @FXML
-    void handleOK(ActionEvent event) {
-    	Map<Integer, Studente> mappaStudenti = this.model.getStudenti();
+    /* Controllo validità campi */
+    public int controllaInserimentoMatricola() {
     	int matricola;
     	try {
     		matricola = Integer.parseInt(txtMatr.getText());
+    		return matricola;
     	} catch(NumberFormatException e) {
-    		txtRisultato.setText("Inserisci un periodo numerico");
-    		return; // L'input è sbagliato perchè non contiene un numero
+    		txtRisultato.setText("Inserisci una matricola numerica");
+    		return -1; 
     	}
-    	if(mappaStudenti.containsKey(matricola)) {
-    		txtNome.setText(mappaStudenti.get(matricola).getNome());
-    		txtCognome.setText(mappaStudenti.get(matricola).getCognome());
-    	}
-    	else {
-    		txtRisultato.setText("Non è presente uno studente con questa matricola");
-    	}
-    	
     }
-
-    @FXML
-    void handleReset(ActionEvent event) {
-    	txtMatr.setText("");
-    	txtRisultato.setText("");
-    	txtNome.setText("");
-    	txtCognome.setText("");
+    
+    public String controllaComboCorso() {
+    	String corsoScelto = cmbCorsi.getValue();
+    	
+    	if(corsoScelto == null || corsoScelto == " ") {
+    		txtRisultato.setText("Selezionare un corso");
+    		return null;
+    	}
+    	else
+    		return corsoScelto;
     }
 
     @FXML
@@ -231,16 +255,14 @@ public class FXMLController {
 	public void setModel(Model model) {
 		this.model = model;	
 		
+		/* PUNTO 1.2: popolo la combobox con i corsi presenti nel database */
 		List<Corso> listaCorsi = this.model.getCorsi();
-		List<String> nomeCorsi = new LinkedList<String>();
 		
     	for(int i = 0; i < listaCorsi.size(); i++) {
-    		nomeCorsi.add(listaCorsi.get(i).getNome());
+    		cmbCorsi.getItems().add(listaCorsi.get(i).getNome());
     	}
     	
-    	nomeCorsi.add(" ");
-    	this.cmbCorsi.getItems().addAll(nomeCorsi);
-		
+    	cmbCorsi.getItems().add(" "); // Inserisco l'elemento vuoto nella combo	
 	}
 
 }

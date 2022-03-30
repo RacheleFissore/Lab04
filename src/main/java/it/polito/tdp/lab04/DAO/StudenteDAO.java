@@ -10,6 +10,7 @@ import it.polito.tdp.lab04.model.Corso;
 import it.polito.tdp.lab04.model.Studente;
 
 public class StudenteDAO {
+	/* Restituisce l'elenco degli studenti */
 	public Map<Integer, Studente> getStudenti() {
 		String sql = "SELECT * FROM studente";
 		Map<Integer, Studente> result = new TreeMap<Integer, Studente>();
@@ -35,6 +36,7 @@ public class StudenteDAO {
 		
 	}
 	
+	/* Data la matricola di uno studente restituisce i corsi a cui è iscritto */
 	public List<Corso> getCorsiPerStudente(int matricola) {
 		List<Corso> listaCorsi = new LinkedList<Corso>();
 		String sql = "SELECT c.* "
@@ -71,6 +73,7 @@ public class StudenteDAO {
 	
 	}
 	
+	/* Data la matricola di uno studente mi restituisce lo studente stesso */
 	public Studente getStudenteByMatricola(int matricola) {
 		String sql = "SELECT * "
 				+ "FROM studente "
@@ -99,6 +102,7 @@ public class StudenteDAO {
 		}
 	}
 	
+	/* Data la matricola di uno studente e il codice di un corso, restituisce lo studente se è iscritto al corso */
 	public Studente getStudenteIscrittoCorso(String codins, int matricola) {
 		String sql = "SELECT s.* "
 				+ "FROM studente s, iscrizione i, corso c "
@@ -130,4 +134,5 @@ public class StudenteDAO {
 			return null;
 		}
 	}
+	
 }
